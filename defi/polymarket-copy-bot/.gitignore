@@ -4,3 +4,4 @@ dist/
 *.md
 !README.md
 .env
+.polymarket-api-creds

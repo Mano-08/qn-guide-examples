@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { config } from './config.js';
 
+export type TradeOutcome = 'YES' | 'NO' | 'UNKNOWN';
+
 export interface Trade {
   txHash: string;
   timestamp: number;
@@ -9,7 +11,7 @@ export interface Trade {
   side: 'BUY' | 'SELL';
   price: number;
   size: number;
-  outcome: 'YES' | 'NO';
+  outcome: TradeOutcome;
 }
 
 export class TradeMonitor {
@@ -62,8 +64,16 @@ export class TradeMonitor {
       side: apiTrade.side.toUpperCase() as 'BUY' | 'SELL',
       price: parseFloat(apiTrade.price),
       size: parseFloat(apiTrade.usdcSize || apiTrade.size),
-      outcome: apiTrade.outcome || 'YES',
+      outcome: this.normalizeOutcome(apiTrade.outcome),
     };
+  }
+
+  private normalizeOutcome(value: any): TradeOutcome {
+    const normalized = String(value ?? '').trim().toUpperCase();
+    if (normalized === 'YES' || normalized === 'NO') {
+      return normalized;
+    }
+    return 'UNKNOWN';
   }
   
   async pollForNewTrades(callback: (trade: Trade) => Promise<void>): Promise<void> {

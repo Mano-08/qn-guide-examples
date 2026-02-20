@@ -142,9 +142,8 @@ class PolymarketCopyBot {
       return;
     }
 
-    const result = await this.executor.executeCopyTrade(trade, copyNotional);
-
-    if (result) {
+    try {
+      const result = await this.executor.executeCopyTrade(trade, copyNotional);
       this.risk.recordFill({
         trade,
         notional: result.copyNotional,
@@ -156,9 +155,12 @@ class PolymarketCopyBot {
       this.stats.totalVolume += result.copyNotional;
       console.log(`✅ Successfully copied trade!`);
       console.log(`📊 Session Stats: ${this.stats.tradesCopied}/${this.stats.tradesDetected} copied, ${this.stats.tradesFailed} failed`);
-    } else {
+    } catch (error: any) {
       this.stats.tradesFailed++;
       console.log(`❌ Failed to copy trade`);
+      if (error?.message) {
+        console.log(`   Reason: ${error.message}`);
+      }
       console.log(`📊 Session Stats: ${this.stats.tradesCopied}/${this.stats.tradesDetected} copied, ${this.stats.tradesFailed} failed`);
     }
   }

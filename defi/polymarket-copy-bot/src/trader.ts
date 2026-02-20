@@ -125,7 +125,7 @@ export class TradeExecutor {
 
     console.log(`✅ API credentials generated!`);
     console.log(`   Credentials loaded in memory for this session`);
-    console.log(`   To print reusable values manually, run: npm run generate-api-creds`);
+    console.log(`   To export reusable values, run: npm run generate-api-creds (writes .polymarket-api-creds)`);
 
     this.apiCreds = {
       apiKey,
@@ -274,7 +274,7 @@ export class TradeExecutor {
   async executeCopyTrade(
     originalTrade: Trade,
     copyNotionalOverride?: number
-  ): Promise<CopyExecutionResult | null> {
+  ): Promise<CopyExecutionResult> {
     const orderType = config.trading.orderType;
     const copyNotional = copyNotionalOverride ?? this.calculateCopySize(originalTrade.size);
 
@@ -386,7 +386,7 @@ export class TradeExecutor {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  private async executeLimitOrder(originalTrade: Trade, copyNotional: number): Promise<CopyExecutionResult | null> {
+  private async executeLimitOrder(originalTrade: Trade, copyNotional: number): Promise<CopyExecutionResult> {
     await this.validateBalance(copyNotional, originalTrade.tokenId);
 
     const [orderbook, orderOpts] = await Promise.all([
@@ -438,7 +438,7 @@ export class TradeExecutor {
     originalTrade: Trade,
     orderType: 'FOK' | 'FAK',
     copyNotional: number
-  ): Promise<CopyExecutionResult | null> {
+  ): Promise<CopyExecutionResult> {
     await this.validateBalance(copyNotional, originalTrade.tokenId);
 
     const [orderbook, orderOpts] = await Promise.all([

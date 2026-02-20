@@ -20,6 +20,7 @@ interface LastTradeMessage {
   size: string;
   side: 'BUY' | 'SELL';
   timestamp: number;
+  outcome?: string;
   maker?: string;
   taker?: string;
 }
@@ -270,7 +271,7 @@ export class WebSocketMonitor {
         side: message.side,
         price: parseFloat(message.price),
         size: parseFloat(message.size),
-        outcome: 'YES',
+        outcome: this.normalizeOutcome(message.outcome),
       };
 
       console.log(`⚡ WebSocket trade detected: ${trade.side} ${trade.size} USDC @ ${trade.price.toFixed(3)}`);
@@ -282,6 +283,14 @@ export class WebSocketMonitor {
     } catch (error) {
       console.error('Error handling trade message:', error);
     }
+  }
+
+  private normalizeOutcome(value?: string): 'YES' | 'NO' | 'UNKNOWN' {
+    const normalized = String(value ?? '').trim().toUpperCase();
+    if (normalized === 'YES' || normalized === 'NO') {
+      return normalized;
+    }
+    return 'UNKNOWN';
   }
 
   private startPingInterval(): void {
